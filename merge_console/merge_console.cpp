@@ -184,7 +184,7 @@ int FindBmpFile(CString strFoldername)
 /*--------------------------------*/
 int _tmain(int argc, _TCHAR* argv[])
 {
-	current_path = _T("F:\\D200_GIT\\D200\\D200_release_version\\firmware_collection");
+	current_path = _T("D:\\D200\\D200\\D200_release_version\\firmware_collection");
 
     FindBmpFile(current_path);
 
@@ -399,7 +399,7 @@ unsigned short get_version(unsigned char * data,unsigned int len , unsigned int 
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version)
 {
    /*------------------*/
-   sprintf_s(name_buffer,500,"F:\\D200_GIT\\D200\\D200_release_version\\firmware_collection\\D200_Autopilot_v%d.fm",fc_version);
+   sprintf_s(name_buffer,500,"D:\\D200\\D200\\D200_release_version\\firmware_collection\\D200_Autopilot_v%d.fm",fc_version);
    /* return ok */
    return 0;
 }
