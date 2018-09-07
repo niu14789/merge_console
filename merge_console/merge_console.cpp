@@ -49,6 +49,8 @@ const char logo_index[15][16] = {
 
 static find_files_def find_files[15];
 
+static char name_buffer[128][200];
+
 //#pragma  comment(  linker,  "/subsystem:\"windows\"  /entry:\"wmainCRTStartup\""  )
 
 unsigned int file_find_cnt = 0,file_add_cnt = 0;
@@ -184,7 +186,42 @@ int FindBmpFile(CString strFoldername)
 /*--------------------------------*/
 int _tmain(int argc, _TCHAR* argv[])
 {
-	current_path = _T("D:\\D200\\D200_release_version\\firmware_collection");
+	if( argc == 1 )
+	{
+		printf("param error %d\r\n",argc);
+		/*------------------*/
+		return (-1);
+	}
+	/*------------------*/
+  	for(int i = 1;i<argc;i++)
+	{
+       Tchar_to_char(argv[i],name_buffer[i-1]);
+	}
+	/*------------------------------------------------------------*/
+    if( strcmp(name_buffer[0],"merge") == 0 )
+	{
+		if( strcmp(name_buffer[1],"-path") == 0 )
+		{
+	
+		}else
+		{
+			printf("COMMAND:[merge] has not [%s] \r\n",name_buffer[1]);
+			return (-1);
+		}
+	}else if( strcmp(name_buffer[0],"--help") == 0 )
+	{
+		printf("nothing for help!\r\n");
+		return (-1);
+	}
+	else
+	{
+		printf("can not found : %s \r\n" , name_buffer[0]);
+		return (-1);
+	}
+	/*---------------*/
+	USES_CONVERSION;
+	/*---------------*/
+	current_path = A2T(name_buffer[3]);//_T("D:\\D200\\D200_release_version\\firmware_collection");
 
     FindBmpFile(current_path);
 
@@ -290,7 +327,7 @@ void Merge_process()
 		return;
 	}
     /* merge ok .then create the sunfile */
-	if( FM_file_name(name_buffer_fm,file_name,find_files[7].version) != 0 )
+	if( FM_file_name(name_buffer_fm,name_buffer[2],find_files[7].version) != 0 )
 	{
 		printf("Create .FM file fail\r\n");
 		return;
@@ -399,8 +436,21 @@ unsigned short get_version(unsigned char * data,unsigned int len , unsigned int 
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version)
 {
    /*------------------*/
-   sprintf_s(name_buffer,500,"D:\\D200\\D200_release_version\\firmware_collection\\D200_Autopilot_v%d.fm",fc_version);
+   sprintf_s(name_buffer,500,"%s//D200_Autopilot_v%d.fm",path,fc_version);
    /* return ok */
    return 0;
 }
 
+int Tchar_to_char(_TCHAR * tchar,char * buffer)
+{
+    int i = 0;
+	memset(buffer,0,sizeof(buffer));
+
+	while(*tchar != '\0')
+	{
+       buffer[i] = (char)(*tchar);
+	   tchar ++;
+	   i++;
+	}
+	return i;
+}
