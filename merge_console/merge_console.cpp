@@ -221,7 +221,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*---------------*/
 	USES_CONVERSION;
 	/*---------------*/
-	current_path = A2T(name_buffer[3]);//_T("D:\\D200\\D200_release_version\\firmware_collection");
+	current_path = A2T(name_buffer[2]);//_T("D:\\D200\\D200_release_version\\firmware_collection");
 
     FindBmpFile(current_path);
 
