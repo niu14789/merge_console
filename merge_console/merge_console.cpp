@@ -7,9 +7,9 @@
 #include <winsock.h>
 #include "merge_msg.h"
 
-static char *fw_path[15];
+static char fw_path[24][200];
 
-static unsigned char open_flag_m[15] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static unsigned char open_flag_m[24];
 
 static unsigned char write_buffer[ 1024 * 1024 * 20 ]; // max to 20 MByte
 static unsigned int write_addr = 0;
@@ -21,7 +21,7 @@ const unsigned int version_export[3] = {0xeabc2547,0,0x3526ec88};
 static unsigned short fc_version = 0xffff;
 
 CString dis;
-static FILE * file[15];
+static FILE * file[24];
 static FILE * sunFile;
 
 /*---------------------------*/
@@ -33,25 +33,36 @@ unsigned check_cal(unsigned char * data , unsigned int len);
 unsigned short get_version(unsigned char * data,unsigned int len , unsigned int index );
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version);
 /*---------------------------*/
-const char logo_index[15][16] = { 
+const char logo_index[24][16] = {
 	"gps board",//0
-    "bottom board",//1
-    "mag1 board",//2
-    "mag2 board",//3
-	"sonar board",//4
-    "gimbal_1 board",//5
-	"gimbal_5 board",//6
-	"ESC1 board",//7
-    "ESC2 board",//8
-    "ESC3 board",//9
-    "ESC4 board",//10
-    "FC board",//11
-    "RX1 board",//12
-    "video board",//13
-    "radio board"};//14
+    "flight_loader",//1
+    "AIRSPEED",//2
+    "esc1",//3
+	"esc2",//4
+    "esc3",//5
+	"bottom board",//6
+	"CAN_R1",//7
+    "CAN_R2",//8
+    "CAN_R3",//9
+    "mag1",//10
+    "mag2",//11
+    "CAN_M01",//12
+    "CAN_M02",//13
+    "CAN_M03",//14
+    "rev1",//15
+    "rev2",//16
+    "rev3",//17
+    "rev4",//18
+    "rev5",//19
+    "rev6",//20
+    "radio",//21
+    "rev7",//22
+	"fc",//23
+};//24
 
-
-static find_files_def find_files[15];
+unsigned msg_version;
+char msg_tail[16];
+char  msg_path[256];
 
 static char name_buffer[128][200];
 
@@ -114,81 +125,91 @@ int FindBmpFile(CString strFoldername)
 int get_file_version(char *dds,char * path_g)
 {
 	/* case the file name */
-	if( sscanf(dds,"D200_GPS_v%d.%s",&find_files[0].version,find_files[0].tail) == 2 )
+	if( sscanf(dds,"V100_GPS_v%d.%s",&msg_version,msg_tail) == 2 )
 	{		
-		{ 
-			open_flag_m[0] = 1;
-			memcpy(find_files[0].path,path_g,strlen(path_g));
-			fw_path[0] = find_files[0].path; 
-//			printf("GPS Firmware Found ! Verion = %d type = %s \r\n%s\r\n",find_files[0].version,find_files[0].tail,find_files[0].path);
-		}
-	}else if( sscanf(dds,"D200_BOTTOM_v%d.%s",&find_files[1].version,find_files[1].tail) == 2 )
+		open_flag_m[0] = 1;
+		memcpy(fw_path[0],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_CAM_v%d.%s",&msg_version,msg_tail) == 2 )
 	{
-		{
-			memcpy(find_files[1].path,path_g,strlen(path_g));
-			fw_path[1] = find_files[1].path;  
-			open_flag_m[1] = 1;
-//			printf("Bottom Firmware Found ! Verion = %d type = %s \r\n",find_files[1].version,find_files[1].tail);
-		}
-	}else if( sscanf(dds,"D200_MAG_v%d.%s",&find_files[2].version,find_files[2].tail) == 2 )
+		open_flag_m[1] = 1;
+		memcpy(fw_path[1],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_ESC_v%d.%s",&msg_version,msg_tail) == 2 )
 	{
-		memcpy(find_files[2].path,path_g,strlen(path_g));
-		fw_path[2] = find_files[2].path;  
-		open_flag_m[2] = 1;
-		fw_path[3] = find_files[2].path;  
 		open_flag_m[3] = 1;
-//		printf("MAG Firmware Found ! Verion = %d type = %s \r\n",find_files[2].version,find_files[2].tail);
-	}else if( sscanf(dds,"D200_SONAR_v%d.%s",&find_files[3].version,find_files[3].tail) == 2 )
-	{
-		memcpy(find_files[3].path,path_g,strlen(path_g));
-		fw_path[4] = find_files[3].path;  
+		memcpy(fw_path[3],path_g,strlen(path_g));
 		open_flag_m[4] = 1;
-//		printf("SONAR Firmware Found ! Verion = %d type = %s \r\n",find_files[3].version,find_files[3].tail);
-	}else if( sscanf(dds,"D200_GIMBAL1_v%d.%s",&find_files[4].version,find_files[4].tail) == 2 )
-	{
-		memcpy(find_files[4].path,path_g,strlen(path_g));
-		fw_path[5] = find_files[4].path;  
+		memcpy(fw_path[4],path_g,strlen(path_g));
 		open_flag_m[5] = 1;
-//		printf("GIMBAL1 Firmware Found ! Verion = %d type = %s \r\n",find_files[4].version,find_files[4].tail);
-	}else if( sscanf(dds,"D200_GIMBAL5_v%d.%s",&find_files[5].version,find_files[5].tail) == 2 )
+		memcpy(fw_path[5],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_BOTTOM_v%d.%s",&msg_version,msg_tail) == 2 )
 	{
-		memcpy(find_files[5].path,path_g,strlen(path_g));
-		fw_path[6] = find_files[5].path;  
 		open_flag_m[6] = 1;
-//		printf("GIMBAL5 Firmware Found ! Verion = %d type = %s \r\n",find_files[5].version,find_files[5].tail);
-	}else if( sscanf(dds,"D200_ESC_v%d.%s",&find_files[6].version,find_files[6].tail) == 2 )
+		memcpy(fw_path[6],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_R_v%d.%s",&msg_version,msg_tail) == 2 )
 	{
-		memcpy(find_files[6].path,path_g,strlen(path_g));
-		fw_path[7] = find_files[6].path;  
 		open_flag_m[7] = 1;
-		fw_path[8] = find_files[6].path;  
+		memcpy(fw_path[7],path_g,strlen(path_g));
 		open_flag_m[8] = 1;
-		fw_path[9] = find_files[6].path;  
+		memcpy(fw_path[8],path_g,strlen(path_g));
 		open_flag_m[9] = 1;
-		fw_path[10] = find_files[6].path;  
-		open_flag_m[10] = 1;
-//		printf("ESC Firmware Found ! Verion = %d type = %s \r\n",find_files[6].version,find_files[6].tail);
-	}else if( sscanf(dds,"D200_DRONE_v%d.%s",&find_files[7].version,find_files[7].tail) == 2 )
+		memcpy(fw_path[9],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_M_v%d.%s",&msg_version,msg_tail) == 2 )
 	{
-		memcpy(find_files[7].path,path_g,strlen(path_g));
-		fw_path[11] = find_files[7].path;  
-		open_flag_m[11] = 1;
-//		printf("DRONE Firmware Found ! Verion = %d type = %s \r\n",find_files[7].version,find_files[7].tail);
-	}else if( sscanf(dds,"D200_RX1_v%d.%s",&find_files[8].version,find_files[8].tail) == 2 )
-	{
-		memcpy(find_files[8].path,path_g,strlen(path_g));
-		fw_path[12] = find_files[8].path;  
 		open_flag_m[12] = 1;
-	}else if( sscanf(dds,"D200_VIDEO_v%d.%s",&find_files[9].version,find_files[9].tail) == 2 )
-	{
-		memcpy(find_files[9].path,path_g,strlen(path_g));
-		fw_path[13] = find_files[9].path;  
+		memcpy(fw_path[12],path_g,strlen(path_g));
 		open_flag_m[13] = 1;
-	}else if( sscanf(dds,"Radio_App_V%d.%s",&find_files[10].version,find_files[10].tail) == 2 )
-	{
-		memcpy(find_files[10].path,path_g,strlen(path_g));
-		fw_path[14] = find_files[10].path;  
+		memcpy(fw_path[13],path_g,strlen(path_g));
 		open_flag_m[14] = 1;
+		memcpy(fw_path[14],path_g,strlen(path_g));
+		open_flag_m[10] = 1;
+		memcpy(fw_path[10],path_g,strlen(path_g));
+		open_flag_m[11] = 1;
+		memcpy(fw_path[11],path_g,strlen(path_g));
+		open_flag_m[2] = 1;
+		memcpy(fw_path[2],path_g,strlen(path_g));
+//		printf("SONAR Firmware Found ! Verion = %d type = %s \r\n",find_files[3].version,find_files[3].tail);
+	}else if( sscanf(dds,"V100_REV1_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[15] = 1;
+		memcpy(fw_path[15],path_g,strlen(path_g));
+	}
+	else if( sscanf(dds,"V100_REV2_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[16] = 1;
+		memcpy(fw_path[16],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_REV3_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[17] = 1;
+		memcpy(fw_path[17],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_REV4_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[18] = 1;
+		memcpy(fw_path[18],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_REV5_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[19] = 1;
+		memcpy(fw_path[19],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_REV6_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[20] = 1;
+		memcpy(fw_path[20],path_g,strlen(path_g));
+	}else if( sscanf(dds,"Radio_App_V%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[21] = 1;
+		memcpy(fw_path[21],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_REV7_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[22] = 1;
+		memcpy(fw_path[22],path_g,strlen(path_g));
+	}else if( sscanf(dds,"V100_DRONE_v%d.%s",&msg_version,msg_tail) == 2 )
+	{
+		open_flag_m[23] = 1;
+		memcpy(fw_path[23],path_g,strlen(path_g));
 	}
 	else
 	{
@@ -226,11 +247,11 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	if( argc == 1 )
 	{
-		printf("+--------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.5 |\r\n");
-		printf("|  How to use? I don`t know too. |\r\n");
-		printf("|  [--help] maybe useful.        |\r\n");
-		printf("+--------------------------------+\r\n");
+		printf("+-------------------------------------+\r\n");
+		printf("|  merge tools at console v0.1.6      |\r\n");
+		printf("|  How to use? I don't know either .  |\r\n");
+		printf("|  [--help] maybe useful.             |\r\n");
+		printf("+-------------------------------------+\r\n");
 		/*------------------*/
 		return (-1);
 	}
@@ -348,7 +369,7 @@ void Merge_process()
 	/*----------*/
 	USES_CONVERSION;
 	/* copy */
-	for( int i = 0 ; i < 15 ; i ++ )
+	for( int i = 0 ; i < 24 ; i ++ )
 	{
 	   /* has not open */
 	   if( open_flag_m[i] == 0 )
@@ -361,13 +382,9 @@ void Merge_process()
 	   /*-----------------*/
        if( file[i] != NULL )
 	   {
-		   if( i == 12 || i == 13 || i == 14 )
-		   {
-			   info.modules_info[mi].index = i + 7;
-		   }else
-		   {
-		       info.modules_info[mi].index = i;
-		   }
+		  
+		   info.modules_info[mi].index = i;
+	
 		   memcpy(&info.modules_info[mi].logo,logo_index[i],16);
 		   info.modules_info[mi].offet = write_addr;
            /* get file size */
@@ -398,7 +415,7 @@ void Merge_process()
 				/* get version */
 				info.modules_info[mi].version = get_version(read_buffer,len,i);
 				/*------------------------*/
-				if( i == 11 )
+				if( i == 23 )
 				{
 					fc_version = info.modules_info[mi].version;
 				}
@@ -488,7 +505,7 @@ unsigned check_cal(unsigned char * data , unsigned int len)
 
 unsigned short get_version(unsigned char * data,unsigned int len , unsigned int index )
 {
-	if( index != 14 )
+	if( index != 21 )
 	{
 		unsigned int *p = (unsigned int *)data;
     
@@ -542,7 +559,7 @@ unsigned short get_version(unsigned char * data,unsigned int len , unsigned int 
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version)
 {
    /*------------------*/
-   sprintf_s(name_buffer,500,"%s//D200_Autopilot_v%d.fm",path,fc_version);
+   sprintf_s(name_buffer,500,"%s//V100_Autopilot_v%d.fm",path,fc_version);
    /* return ok */
    return 0;
 }
