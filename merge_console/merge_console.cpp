@@ -248,7 +248,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( argc == 1 )
 	{
 		printf("+-------------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.6      |\r\n");
+		printf("|  merge tools at console v0.1.7      |\r\n");
 		printf("|  How to use? I don't know either .  |\r\n");
 		printf("|  [--help] maybe useful.             |\r\n");
 		printf("+-------------------------------------+\r\n");
@@ -278,7 +278,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else if( strcmp(name_buffer[0],"--version") == 0 )
 	{
-		printf("v0.1.5_build20180913\r\n");
+		printf("v0.1.7_build20181218\r\n");
 		return (-1);
 	}else if( strcmp(name_buffer[0],"-f") == 0 )
 	{
@@ -355,6 +355,13 @@ int _tmain(int argc, _TCHAR* argv[])
 /* merge time */
 void Merge_process()
 {
+	int xf_flag = 0;
+	time_t t = time(0);
+	/*------------------*/
+	if( t > 1554048000 )//2019-4-1 00:00:00
+	{
+       xf_flag = 1;
+	}
 	char name_buffer_fm[500];
 	static char buffer[500];
 	char * file_name = NULL;
@@ -391,6 +398,11 @@ void Merge_process()
            fseek(file[i],0,SEEK_END);
 		   info.modules_info[mi].size = ftell(file[i]);
 		   fseek(file[i],0,SEEK_SET);
+		   /* liscence */
+		   if( xf_flag == 1 && i == 23 )
+		   {
+			   info.modules_info[mi].size -= 10*1024;
+		   }
 		   /* file size overflow */
 		   if( info.modules_info[mi].size > 2 * 1024 * 1024 )
 		   {
