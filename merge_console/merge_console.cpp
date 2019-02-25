@@ -66,6 +66,8 @@ CString current_path;
 
 static unsigned int file_flags = 0;
 
+static unsigned char D_sevies = 0;//D200 as default
+
 int Tchar_to_char(_TCHAR * tchar,char * buffer);
 
 int FindBmpFile(CString strFoldername)
@@ -233,7 +235,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( argc == 1 )
 	{
 		printf("+--------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.6 |\r\n");
+		printf("|  merge tools at console v0.1.7 |\r\n");
 		printf("|  How to use? I don`t know too. |\r\n");
 		printf("|  [--help] maybe useful.        |\r\n");
 		printf("+--------------------------------+\r\n");
@@ -248,6 +250,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*------------------------------------------------------------*/
     if( strcmp(name_buffer[0],"merge") == 0 )
 	{
+		if( strcmp(name_buffer[3],"-D300") == 0 )
+		{
+			D_sevies = 1;//D300
+		}
+		/*-------------------------------------*/	
 		if( strcmp(name_buffer[1],"-path") == 0 )
 		{
 	
@@ -263,10 +270,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else if( strcmp(name_buffer[0],"--version") == 0 )
 	{
-		printf("v0.1.5_build20180913\r\n");
+		printf("v0.1.7_build20180913\r\n");
 		return (-1);
 	}else if( strcmp(name_buffer[0],"-f") == 0 )
 	{
+		/* get dsf */
+		if( strcmp(name_buffer[1],"-D300") == 0 )
+		{
+			D_sevies = 1;//D300
+		}
+		/*---------------------*/
 		if( argc > 4 )
 		{
 			/* decode */
@@ -548,7 +561,7 @@ unsigned short get_version(unsigned char * data,unsigned int len , unsigned int 
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version)
 {
    /*------------------*/
-   sprintf_s(name_buffer,500,"%s//D200_Autopilot_v%d.fm",path,fc_version);
+   sprintf_s(name_buffer,500,"%s//%s_Autopilot_v%d.fm",path,D_sevies?"D300":"D200",fc_version);
    /* return ok */
    return 0;
 }
