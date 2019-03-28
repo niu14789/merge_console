@@ -129,8 +129,14 @@ int get_file_version(char *ddst,char * path_g)
 	/*--------*/
 	if( dds == NULL )
 	{
-		printf("Unkown file: %s\r\n",path_g);
-		return (-1);
+		/* get radio */
+		dds = strstr(ddst,"Radio_");
+		/* dt */
+		if( dds == NULL )
+		{
+			printf("Unkown file: %s\r\n",path_g);
+			return (-1);
+		}
 	}
 	/* case the file name */
 	if( sscanf(dds,"V_GPS_v%d.%s",&msg_version,msg_tail) == 2 )
@@ -256,7 +262,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( argc == 1 )
 	{
 		printf("+-------------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.8      |\r\n");
+		printf("|  merge tools at console v0.1.9      |\r\n");
 		printf("|  How to use? I don't know either .  |\r\n");
 		printf("|  [--help] maybe useful.             |\r\n");
 		printf("+-------------------------------------+\r\n");
@@ -286,7 +292,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else if( strcmp(name_buffer[0],"--version") == 0 )
 	{
-		printf("v0.1.8_build20190326\r\n");
+		printf("v0.1.9_build20190328\r\n");
 		return (-1);
 	}else if( strcmp(name_buffer[0],"-f") == 0 )
 	{
@@ -302,7 +308,6 @@ int _tmain(int argc, _TCHAR* argv[])
 				
 				if( get_file_version(buffer,name_buffer[3+i]) != 0 )
 				{
-					printf("invail file  : %s \r\n" , name_buffer[3+i]);
 					return (-1);
 				}
 			}
