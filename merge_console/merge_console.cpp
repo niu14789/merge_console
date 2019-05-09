@@ -7,9 +7,9 @@
 #include <winsock.h>
 #include "merge_msg.h"
 
-static char *fw_path[16];
+static char *fw_path[17];
 
-static unsigned char open_flag_m[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static unsigned char open_flag_m[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 static unsigned char write_buffer[ 1024 * 1024 * 20 ]; // max to 20 MByte
 static unsigned int write_addr = 0;
@@ -21,7 +21,7 @@ const unsigned int version_export[3] = {0xeabc2547,0,0x3526ec88};
 static unsigned short fc_version = 0xffff;
 
 CString dis;
-static FILE * file[16];
+static FILE * file[17];
 static FILE * sunFile;
 
 /*---------------------------*/
@@ -33,7 +33,7 @@ unsigned check_cal(unsigned char * data , unsigned int len);
 unsigned short get_version(unsigned char * data,unsigned int len , unsigned int index );
 int FM_file_name(char * name_buffer,const char * path,unsigned short fc_version);
 /*---------------------------*/
-const char logo_index[16][16] = { 
+const char logo_index[17][16] = { 
 	"gps board",//0
     "bottom board",//1
     "mag1 board",//2
@@ -49,7 +49,8 @@ const char logo_index[16][16] = {
     "RX1 board",//12
     "video board",//13
     "radio board",//14
-    "D_TRI100"};//15
+    "D_TRI100",//15
+    "REV1"};//16
 
 
 static find_files_def find_files[16];
@@ -197,6 +198,11 @@ int get_file_version(char *dds,char * path_g)
 		memcpy(find_files[11].path,path_g,strlen(path_g));
 		fw_path[15] = find_files[11].path;  
 		open_flag_m[15] = 1;
+	}else if( sscanf(dds,"D200_REV1_v%d.%s",&find_files[12].version,find_files[12].tail) == 2 )
+	{
+		memcpy(find_files[12].path,path_g,strlen(path_g));
+		fw_path[16] = find_files[12].path;  
+		open_flag_m[16] = 1;
 	}
 	else
 	{
@@ -235,7 +241,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( argc == 1 )
 	{
 		printf("+--------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.7 |\r\n");
+		printf("|  merge tools at console v0.1.8 |\r\n");
 		printf("|  How to use? I don`t know too. |\r\n");
 		printf("|  [--help] maybe useful.        |\r\n");
 		printf("+--------------------------------+\r\n");
@@ -270,7 +276,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else if( strcmp(name_buffer[0],"--version") == 0 )
 	{
-		printf("v0.1.7_build20180913\r\n");
+		printf("v0.1.7_build20190509\r\n");
 		return (-1);
 	}else if( strcmp(name_buffer[0],"-f") == 0 )
 	{
@@ -367,7 +373,7 @@ void Merge_process()
 	/*----------*/
 	USES_CONVERSION;
 	/* copy */
-	for( int i = 0 ; i < 16 ; i ++ )
+	for( int i = 0 ; i < 17 ; i ++ )
 	{
 	   /* has not open */
 	   if( open_flag_m[i] == 0 )
@@ -380,7 +386,7 @@ void Merge_process()
 	   /*-----------------*/
        if( file[i] != NULL )
 	   {
-		   if( i == 12 || i == 13 || i == 14 || i == 15 )
+		   if( i == 12 || i == 13 || i == 14 || i == 15 || i == 16 )
 		   {
 			   info.modules_info[mi].index = i + 7;
 		   }else
