@@ -40,7 +40,7 @@ const char logo_index[17][16] = {
     "mag2 board",//3
 	"sonar board",//4
     "gimbal_1 board",//5
-	"gimbal_5 board",//6
+	"MSPC board",//6
 	"ESC1 board",//7
     "ESC2 board",//8
     "ESC3 board",//9
@@ -154,7 +154,7 @@ int get_file_version(char *dds,char * path_g)
 		fw_path[5] = find_files[4].path;  
 		open_flag_m[5] = 1;
 //		printf("GIMBAL1 Firmware Found ! Verion = %d type = %s \r\n",find_files[4].version,find_files[4].tail);
-	}else if( sscanf(dds,"D200_GIMBAL5_v%d.%s",&find_files[5].version,find_files[5].tail) == 2 )
+	}else if( sscanf(dds,"D200_MSPC_v%d.%s",&find_files[5].version,find_files[5].tail) == 2 )
 	{
 		memcpy(find_files[5].path,path_g,strlen(path_g));
 		fw_path[6] = find_files[5].path;  
@@ -241,7 +241,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( argc == 1 )
 	{
 		printf("+--------------------------------+\r\n");
-		printf("|  merge tools at console v0.1.8 |\r\n");
+		printf("|  merge tools at console v0.1.9 |\r\n");
 		printf("|  How to use? I don`t know too. |\r\n");
 		printf("|  [--help] maybe useful.        |\r\n");
 		printf("+--------------------------------+\r\n");
@@ -276,7 +276,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else if( strcmp(name_buffer[0],"--version") == 0 )
 	{
-		printf("v0.1.7_build20190509\r\n");
+		printf("v0.1.9_build20190617\r\n");
 		return (-1);
 	}else if( strcmp(name_buffer[0],"-f") == 0 )
 	{
