@@ -359,13 +359,7 @@ int _tmain(int argc, _TCHAR* argv[])
 /* merge time */
 void Merge_process()
 {
-	int xf_flag = 0;
-	time_t t = time(0);
-	/*------------------*/
-	if( t > 1554048000 )//2019-4-1 00:00:00
-	{
-       //xf_flag = 1;
-	}
+    /*--------------------------*/
 	char name_buffer_fm[500];
 	static char buffer[500];
 	char * file_name = NULL;
@@ -393,7 +387,6 @@ void Merge_process()
 	   /*-----------------*/
        if( file[i] != NULL )
 	   {
-		  
 		   info.modules_info[mi].index = i;
 	
 		   memcpy(&info.modules_info[mi].logo,logo_index[i],16);
@@ -402,11 +395,6 @@ void Merge_process()
            fseek(file[i],0,SEEK_END);
 		   info.modules_info[mi].size = ftell(file[i]);
 		   fseek(file[i],0,SEEK_SET);
-		   /* liscence */
-		   if( xf_flag == 1 && i == 23 )
-		   {
-			   info.modules_info[mi].size -= 10*1024;
-		   }
 		   /* file size overflow */
 		   if( info.modules_info[mi].size > 2 * 1024 * 1024 )
 		   {
